@@ -1,4 +1,4 @@
-## Beambasket
+<img alt="Logo" src="logo.png" width=300>
 
 Beambasket is a source-available portal for selling laser cutting & engraivng services online.
 
