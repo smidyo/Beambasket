@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PortalConfig {
+  id                Int      @id @default(0) // There should only be one row in this table.
+  nameKey           String
+  defaultLanguage   Language @relation(fields: [defaultLanguageId], references: [id])
+  defaultLanguageId Int      @unique
+
+  adminMeasurementUnits         MeasurementUnits @default(Metric)
+  clientDefaultMeasurementUnits MeasurementUnits @default(Metric)
+
+  maxDesignWidthMm  Float
+  maxDesignHeightMm Float
+}
+
+enum MeasurementUnits {
+  Metric
+  Imperial
+}
+
+model Language {
+  id                      Int                   @id @default(autoincrement())
+  nameKey                 String
+  defaultLanguageInPortal PortalConfig?
+  materialDescriptions    MaterialDescription[]
+  translations            Json
+}
+
+model User {
+  id        Int    @id @default(autoincrement())
+  firstName String
+  lastName  String
+
+  preferredMeasurementUnits MeasurementUnits @default(Metric)
+
+  designs     Design[]
+  basketItems BasketItem[]
+}
+
+model DiscountBreak {
+  id                 Int    @id @default(autoincrement())
+  minQty             Int
+  discountAmount     Int?
+  discountPercentage Float?
+}
+
+model BasketItem {
+  id       Int    @id @default(autoincrement())
+  quantity Int
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId   Int
+  design   Design @relation(fields: [designId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  designId Int
+}
+
+model Design {
+  id Int @id @default(autoincrement())
+
+  name                String
+  originalFilePath    String
+  originalSvgFilePath String
+
+  processingSvgFilePath String?
+  user                  User?        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId                Int?
+  basketItems           BasketItem[]
+}
+
+model Material {
+  id      Int    @id @default(autoincrement())
+  nameKey String
+
+  materialsCategory   MaterialsCategory?    @relation(fields: [materialsCategoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  materialsCategoryId Int?
+  materialDescription MaterialDescription[]
+
+  materialUsageMethod MaterialUsageMethod
+
+  thicknesses MaterialThickness[]
+  sizes       MaterialSize[]
+
+  scoreable          Boolean
+  scoringSpeedMmPerS Float
+
+  engraveable          Boolean
+  engravingSpeedMmPerS Float
+}
+
+enum MaterialUsageMethod {
+  SheetSize
+  PartSize
+}
+
+model MaterialsCategory {
+  id       Int        @id @default(autoincrement())
+  nameKey  String
+  material Material[]
+}
+
+model MaterialSize {
+  id         Int      @id @default(autoincrement())
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  materialId Int
+  widthMm    Float
+  heightMm   Float
+}
+
+model MaterialThickness {
+  id         Int      @id @default(autoincrement())
+  nameKey    String
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  materialId Int
+
+  thicknessMm Float
+
+  cuttable           Boolean
+  cuttingSpeedMmPerS Float
+
+  pricePerM2 Float
+}
+
+model MaterialDescription {
+  id         Int      @id @default(autoincrement())
+  language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  languageId Int
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  materialId Int
+}
