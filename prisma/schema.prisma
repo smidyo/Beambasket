@@ -61,7 +61,7 @@ model Session {
 }
 
 model User {
-  id   String @id @default(cuid())
+  id   String  @id @default(cuid())
   name String?
 
   email         String?   @unique
@@ -73,7 +73,7 @@ model User {
   preferredMeasurementUnits MeasurementUnits @default(Metric)
 
   designs     Design[]
-  basketItems BasketItem[]
+  basketParts BasketPart[]
 }
 
 model VerificationToken {
@@ -91,9 +91,16 @@ model DiscountBreak {
   discountPercentage Float?
 }
 
-model BasketItem {
-  id       String @id @default(cuid())
-  quantity Int
+model BasketPart {
+  id String @id @default(cuid())
+
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  materialId String
+
+  selectionData Json?
+  quantity      Int?
+  unitPrice     Int?
+
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId   String
   design   Design @relation(fields: [designId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -108,18 +115,19 @@ model Design {
   originalSvgFilePath String
 
   processingSvgFilePath String?
-  user                  User?        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId                String?
-  basketItems           BasketItem[]
+  user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId                String
+  basketParts           BasketPart[]
 }
 
 model Material {
   id      String @id @default(cuid())
   nameKey String
 
-  materialsCategory   MaterialsCategory?    @relation(fields: [materialsCategoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  materialsCategory   MaterialsCategory? @relation(fields: [materialsCategoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   materialsCategoryId String?
-  materialDescription MaterialDescription[]
+
+  materialDescriptions MaterialDescription[]
 
   materialUsageMethod MaterialUsageMethod
 
@@ -131,6 +139,8 @@ model Material {
 
   engraveable          Boolean
   engravingSpeedMmPerS Float
+
+  basketParts BasketPart[]
 }
 
 enum MaterialUsageMethod {
