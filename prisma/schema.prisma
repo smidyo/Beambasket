@@ -8,10 +8,10 @@ datasource db {
 }
 
 model PortalConfig {
-  id                Int      @id @default(0) // There should only be one row in this table.
+  id                String   @id @default(cuid()) // There should only be one row in this table.
   nameKey           String
   defaultLanguage   Language @relation(fields: [defaultLanguageId], references: [id])
-  defaultLanguageId Int      @unique
+  defaultLanguageId String   @unique
 
   adminMeasurementUnits         MeasurementUnits @default(Metric)
   clientDefaultMeasurementUnits MeasurementUnits @default(Metric)
@@ -26,17 +26,49 @@ enum MeasurementUnits {
 }
 
 model Language {
-  id                      Int                   @id @default(autoincrement())
+  id                      String                @id @default(cuid())
   nameKey                 String
   defaultLanguageInPortal PortalConfig?
   materialDescriptions    MaterialDescription[]
   translations            Json
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+}
+
 model User {
-  id        Int    @id @default(autoincrement())
-  firstName String
-  lastName  String
+  id   String @id @default(cuid())
+  name String?
+
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
 
   preferredMeasurementUnits MeasurementUnits @default(Metric)
 
@@ -44,24 +76,32 @@ model User {
   basketItems BasketItem[]
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 model DiscountBreak {
-  id                 Int    @id @default(autoincrement())
+  id                 String @id @default(cuid())
   minQty             Int
   discountAmount     Int?
   discountPercentage Float?
 }
 
 model BasketItem {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(cuid())
   quantity Int
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId   Int
+  userId   String
   design   Design @relation(fields: [designId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  designId Int
+  designId String
 }
 
 model Design {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
 
   name                String
   originalFilePath    String
@@ -69,16 +109,16 @@ model Design {
 
   processingSvgFilePath String?
   user                  User?        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId                Int?
+  userId                String?
   basketItems           BasketItem[]
 }
 
 model Material {
-  id      Int    @id @default(autoincrement())
+  id      String @id @default(cuid())
   nameKey String
 
   materialsCategory   MaterialsCategory?    @relation(fields: [materialsCategoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  materialsCategoryId Int?
+  materialsCategoryId String?
   materialDescription MaterialDescription[]
 
   materialUsageMethod MaterialUsageMethod
@@ -99,24 +139,24 @@ enum MaterialUsageMethod {
 }
 
 model MaterialsCategory {
-  id       Int        @id @default(autoincrement())
+  id       String     @id @default(cuid())
   nameKey  String
   material Material[]
 }
 
 model MaterialSize {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(cuid())
   material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  materialId Int
+  materialId String
   widthMm    Float
   heightMm   Float
 }
 
 model MaterialThickness {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(cuid())
   nameKey    String
   material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  materialId Int
+  materialId String
 
   thicknessMm Float
 
@@ -127,9 +167,9 @@ model MaterialThickness {
 }
 
 model MaterialDescription {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(cuid())
   language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  languageId Int
+  languageId String
   material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  materialId Int
+  materialId String
 }
