@@ -94,17 +94,16 @@ model DiscountBreak {
 model BasketPart {
   id String @id @default(cuid())
 
-  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  materialId String
+  material   Material? @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  materialId String?
 
-  selectionData Json?
-  quantity      Int?
-  unitPrice     Int?
+  quantity  Int?
+  unitPrice Int?
 
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId   String
-  design   Design @relation(fields: [designId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  designId String
+  design   Design? @relation(fields: [designId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  designId String?
 }
 
 model Design {
@@ -114,13 +113,15 @@ model Design {
   originalFilePath    String
   originalSvgFilePath String
 
+  selectionData Json?
+
   processingSvgFilePath String?
-  user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId                String
   basketParts           BasketPart[]
 }
 
-model Material {
+model MaterialVariant {
   id      String @id @default(cuid())
   nameKey String
 
@@ -131,7 +132,7 @@ model Material {
 
   materialUsageMethod MaterialUsageMethod
 
-  thicknesses MaterialThickness[]
+  materials Material[]
   sizes       MaterialSize[]
 
   scoreable          Boolean
@@ -139,8 +140,6 @@ model Material {
 
   engraveable          Boolean
   engravingSpeedMmPerS Float
-
-  basketParts BasketPart[]
 }
 
 enum MaterialUsageMethod {
@@ -149,24 +148,24 @@ enum MaterialUsageMethod {
 }
 
 model MaterialsCategory {
-  id       String     @id @default(cuid())
-  nameKey  String
-  material Material[]
+  id               String            @id @default(cuid())
+  nameKey          String
+  materialVariants MaterialVariant[]
 }
 
 model MaterialSize {
-  id         String   @id @default(cuid())
-  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  materialId String
-  widthMm    Float
-  heightMm   Float
+  id                String          @id @default(cuid())
+  materialVariant   MaterialVariant @relation(fields: [materialVariantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  materialVariantId String
+  widthMm           Float
+  heightMm          Float
 }
 
-model MaterialThickness {
-  id         String   @id @default(cuid())
-  nameKey    String
-  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  materialId String
+model Material {
+  id              String          @id @default(cuid())
+  nameKey         String
+  materialVariant MaterialVariant @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  materialId      String
 
   thicknessMm Float
 
@@ -174,12 +173,14 @@ model MaterialThickness {
   cuttingSpeedMmPerS Float
 
   pricePerM2 Float
+
+  basketParts BasketPart[]
 }
 
 model MaterialDescription {
-  id         String   @id @default(cuid())
-  language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  languageId String
-  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  materialId String
+  id                String          @id @default(cuid())
+  language          Language        @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  languageId        String
+  materialVariant   MaterialVariant @relation(fields: [materialVariantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  materialVariantId String
 }
