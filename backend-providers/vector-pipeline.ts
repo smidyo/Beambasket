@@ -1,7 +1,16 @@
 import { VectorFile, VectorFormat } from '../types/vector';
 import { vectorExpressVectorPipeline } from './vector-express/vector-express-vector-pipeline';
 
-export const vectorPipelineProvider = vectorExpressVectorPipeline;
+const vectorPipelineProviders: Record<
+  string,
+  VectorPipelineProvider<VectorFormat, VectorFormat, EstimationSelectionMethod>
+> = {
+  VECTOR_EXPRESS: vectorExpressVectorPipeline as any,
+};
+
+export const vectorPipelineProvider = process.env.VECTOR_PIPELINE_PROVIDER
+  ? vectorPipelineProviders[process.env.VECTOR_PIPELINE_PROVIDER]
+  : vectorExpressVectorPipeline;
 
 export enum EstimationSelectionMethod {
   NoSelection,

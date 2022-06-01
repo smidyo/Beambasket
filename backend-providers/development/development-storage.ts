@@ -1,24 +1,24 @@
-import { createReadStream, createWriteStream } from 'fs';
+import { createReadStream, createWriteStream, open } from 'fs';
 import { nanoid } from 'nanoid';
 import { join } from 'path';
-import { pipeline } from 'stream/promises';
 
 import { StorageProvider } from '../storage';
 
 export const developmentStorageProvider: StorageProvider = {
-  async uploadFile({ data, fileName }) {
+  getFileUploader() {
     const hash = nanoid();
-    const location = join(__dirname, "files", hash);
+    const location = join(process.env.DEVELOPMENT_STORAGE_PROVIDER_PATH!, hash);
     const stream = createWriteStream(location);
 
-    await pipeline(data, stream);
+    stream.on('close', () => {console.log('finished')})
+    console.log('test')
 
-    return { fileLocation: location };
+    return stream;
   },
 
-  async downloadFile({ fileLocation }) {
+  getFileDownloader({ fileLocation }) {
     const stream = createReadStream(fileLocation);
 
-    return { data: stream };
+    return stream;
   },
 };
