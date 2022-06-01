@@ -1,12 +1,11 @@
 import { getSession } from 'next-auth/react';
 
 import { Prisma } from '../../utils/prisma';
-import { MaterialSidebar } from '../../widgets/material-sidebar';
-import { Materials } from '../../widgets/materials';
+import { MakeWidget } from '../../widgets/make';
 
 import type { GetServerSideProps, NextPage } from "next";
 interface Props {
-  designs: Array<{ filename: string; previewSvg: string }>;
+  basketPartId: string;
 }
 
 export const getServerSideProps: GetServerSideProps<
@@ -15,44 +14,35 @@ export const getServerSideProps: GetServerSideProps<
 > = async (context) => {
   const session = await getSession(context);
 
-  if (!session?.user?.email) {
+  /*if (!session?.user?.email) {
     return { redirect: { destination: "/", statusCode: 307 } };
-  }
+  }*/
 
   const basketPart =
     context.params?.basketPartId !== undefined
       ? await Prisma.basketPart.findUnique({
           where: { id: context.params?.basketPartId },
         })
-      : await Prisma.basketPart.create({
-          data: { user: { connect: { email: session.user.email } } },
-        });
+      : null;
 
-  const designs = await Prisma.user
-    .findUnique({ where: { email: session.user.email } })
-    .designs();
+  if (!basketPart) {
+    return {
+      redirect: {
+        destination: "/make/",
+        statusCode: 307,
+      },
+    };
+  }
 
   return {
     props: {
-      designs: designs.map((d) => ({
-        filename: d.name,
-        previewSvg: d.originalSvgFilePath,
-      })),
+      basketPartId: basketPart.id,
     },
   };
 };
 
-const DesignsPage: NextPage<Props> = (props) => {
-  return (
-    <div className="flex">
-      <div className="w-96">
-        <MaterialSidebar />
-      </div>
-      <div className="flex-grow">
-        <Materials onSelectMaterial={(materialId) => alert(materialId)} />
-      </div>
-    </div>
-  );
+const MakePage: NextPage<Props> = (props) => {
+  return <MakeWidget basketPartId={props.basketPartId} />;
 };
 
-export default DesignsPage;
+export default MakePage;

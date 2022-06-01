@@ -14,10 +14,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     data: { user: { connect: { email: session.user.email } } },
   });
 
-  const designs = await Prisma.user
-    .findUnique({ where: { email: session.user.email } })
-    .designs();
-
   return {
     redirect: {
       destination: `/make/${basketPart.id}`,
