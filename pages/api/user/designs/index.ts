@@ -1,8 +1,11 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import busboy from 'busboy';
+import { ReadStream } from 'fs';
+import { pipeline } from 'stream/promises';
 
-import { storageProvider } from '../../../../backend-providers/storage';
+import { storageProvider, uploadFile } from '../../../../backend-providers/storage';
+import { vectorPipelineProvider } from '../../../../backend-providers/vector-pipeline';
+import { VectorFormat } from '../../../../types/vector';
 import { Prisma } from '../../../../utils/prisma';
 
 export interface DesignsResponse {
@@ -33,17 +36,44 @@ export default async function handler(
     case "POST": {
       const bb = busboy({ headers: req.headers });
 
-      bb.on("file", (name, file, info) => {
-        const uploader = storageProvider.getFileUploader();
+      bb.on("file", async (name, file, { filename }) => {
+        if (name !== "file") return;
 
-        file
-          .on("data", (data) => {
-            uploader.write(data);
-          })
-          .on("close", () => uploader.close());
+        const location = await uploadFile({
+          file,
+          filename,
+        });
+
+        // await new Promise((res) => setTimeout(res, 2000));
+
+        const fileToConvertStream = storageProvider.createDownloadStream({
+          fileLocation: location,
+        });
+
+        const { vectorFile } = await vectorPipelineProvider.generateSvgPreview({
+          vectorFile: {
+            filename,
+            stream: fileToConvertStream,
+            format: VectorFormat.Ai,
+          },
+        });
+
+        await Prisma.design.create({
+          data: {
+            name: filename,
+            user: { create: {} },
+            originalFile: { create: { filename, location } },
+            svgPreviewFile: {
+              create: {
+                filename: vectorFile.filename,
+                location: '',
+              },
+            },
+          },
+        });
       });
 
-      req.pipe(bb);
+      await pipeline(req, bb);
 
       res.status(200).end();
       return;

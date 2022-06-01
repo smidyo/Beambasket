@@ -1,4 +1,9 @@
+import { ReadStream } from 'fs';
+import { get, request } from 'https';
+import { pipeline } from 'stream/promises';
+
 import { VectorFile, VectorFormat } from '../../types/vector';
+import { storageProvider } from '../storage';
 import { EstimationSelectionMethod, VectorPipelineProvider } from '../vector-pipeline';
 
 export const vectorExpressVectorPipeline: VectorPipelineProvider<
@@ -23,10 +28,61 @@ export const vectorExpressVectorPipeline: VectorPipelineProvider<
   estimationFormat: VectorFormat.Svg,
 
   generateSvgPreview: async ({ vectorFile }) => {
-    return { vectorFile: vectorFile as VectorFile<VectorFormat.Svg> };
+    const paths = await fetch(
+      "https://vector.express/api/v2/public/convert/pdf/auto/svg"
+    ).then((res) => res.json());
+
+    const filename = `${vectorFile.filename}.svg`;
+
+    const downloadUrl = await new Promise<string>((res, rej) => {
+      let json = "";
+      const req = request(
+        {
+          hostname: "vector.express",
+          path: paths.alternatives[0].path,
+          port: 443,
+          method: "POST",
+          headers: { "Content-Type": "application/pdf" },
+        },
+        (s) => {
+          s.on("data", (data) => json += data);
+          s.on("close", () => {
+            console.log(json)
+            res(JSON.parse(json).resultUrl);
+          });
+        }
+      );
+
+      // console.log(vectorFile.stream);
+      pipeline(vectorFile.stream, req);
+    });
+
+    const stream = storageProvider.createUploadStream({
+      filename,
+    });
+
+    console.log(downloadUrl)
+
+    await new Promise<void>((res, rej) => {
+      get(downloadUrl, (s) => {
+        s.on("data", (data) => stream.stream.write(data));
+        s.on("close", () => {
+          stream.stream.end();
+          res();
+        });
+      });
+    });
+
+    return {
+      vectorFile: {
+        filename,
+        stream: null as any,
+        format: VectorFormat.Svg,
+      },
+    };
   },
 
-  estimationSelectionMethod: EstimationSelectionMethod.ByStrokeFill,
+  estimationSelectionMethod: 0, // EstimationSelectionMethod.ByStrokeFill,
 
   estimateLinearMovement: async ({
     vectorFile,

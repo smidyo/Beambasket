@@ -1,22 +1,25 @@
-import { createReadStream, createWriteStream, open } from 'fs';
-import { nanoid } from 'nanoid';
+import { createReadStream, createWriteStream } from 'fs';
+import { customAlphabet } from 'nanoid';
 import { join } from 'path';
 
 import { StorageProvider } from '../storage';
 
 export const developmentStorageProvider: StorageProvider = {
-  getFileUploader() {
-    const hash = nanoid();
-    const location = join(process.env.DEVELOPMENT_STORAGE_PROVIDER_PATH!, hash);
-    const stream = createWriteStream(location);
+  createUploadStream({ filename }) {
+    const extension = filename.split(".").pop();
 
-    stream.on('close', () => {console.log('finished')})
-    console.log('test')
+    const hash = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz")(20);
+    const path =
+      join(process.env.DEVELOPMENT_STORAGE_PROVIDER_PATH!, hash) +
+      "." +
+      extension;
+      
+    const stream = createWriteStream(path);
 
-    return stream;
+    return { stream, fileLocation: path };
   },
 
-  getFileDownloader({ fileLocation }) {
+  createDownloadStream({ fileLocation }) {
     const stream = createReadStream(fileLocation);
 
     return stream;

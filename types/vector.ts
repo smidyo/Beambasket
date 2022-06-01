@@ -1,6 +1,8 @@
+import { Readable } from 'stream';
+
 export interface VectorFile<F = VectorFormat> {
-  filePath: string;
-  fileName: string;
+  stream: Readable;
+  filename: string;
   format: F;
 }
 
