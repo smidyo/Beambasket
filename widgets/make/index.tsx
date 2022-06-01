@@ -1,6 +1,6 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 
-import { MakeWidgetContentMaterials } from './content/materials';
+import { MakeWidgetContentMaterial } from './content/material';
 import { MakeWidgetSidebarDesign } from './sidebar/design';
 import { MakeWidgetSidebarMaterial } from './sidebar/material';
 import { Action, ActionType, initialState, reducer, Stage, State } from './state';
@@ -62,7 +62,7 @@ export const MakeWidget = (props: MakeWidgetProps) => {
           )}
         </div>
         <div className="flex-grow">
-          <MakeWidgetContentMaterials />
+          <MakeWidgetContentMaterial />
         </div>
       </div>
     </MakeWidgetContext.Provider>

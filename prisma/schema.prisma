@@ -100,7 +100,7 @@ model BasketPart {
   quantity  Int?
   unitPrice Int?
 
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId   String
   design   Design? @relation(fields: [designId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   designId String?
@@ -109,16 +109,27 @@ model BasketPart {
 model Design {
   id String @id @default(cuid())
 
-  name                String
-  originalFilePath    String
-  originalSvgFilePath String
+  name             String
+  originalFile     File    @relation(name: "DesignOriginalFile", fields: [originalFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  originalFileId   String  @unique
+  estimationFile   File?   @relation(name: "DesignEstimationFile", fields: [estimationFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  estimationFileId String? @unique
 
   selectionData Json?
 
-  processingSvgFilePath String?
-  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId                String
-  basketParts           BasketPart[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId      String
+  basketParts BasketPart[]
+}
+
+model File {
+  id String @id @default(cuid())
+
+  filename String
+  location String
+
+  designOriginal   Design? @relation(name: "DesignOriginalFile")
+  designEstimation Design? @relation(name: "DesignEstimationFile")
 }
 
 model MaterialVariant {
@@ -133,7 +144,7 @@ model MaterialVariant {
   materialUsageMethod MaterialUsageMethod
 
   materials Material[]
-  sizes       MaterialSize[]
+  sizes     MaterialSize[]
 
   scoreable          Boolean
   scoringSpeedMmPerS Float

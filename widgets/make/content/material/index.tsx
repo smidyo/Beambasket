@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { MakeWidgetContext } from '../..';
 import { ActionType } from '../../state';
 
-export const MakeWidgetContentMaterials = () => {
+export const MakeWidgetContentMaterial = () => {
   const { dispatch, state } = useContext(MakeWidgetContext);
 
   return (
