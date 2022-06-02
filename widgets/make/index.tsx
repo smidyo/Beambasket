@@ -1,5 +1,9 @@
 import React, { useEffect, useReducer } from 'react';
+import useSWR from 'swr';
 
+import { MaterialsResponse } from '../../pages/api/materials';
+import { DesignsResponse } from '../../pages/api/user/designs';
+import { fetcher } from '../../utils/fetcher';
 import { MakeWidgetContentMaterial } from './content/material';
 import { MakeWidgetSidebarDesign } from './sidebar/design';
 import { MakeWidgetSidebarMaterial } from './sidebar/material';
@@ -17,39 +21,48 @@ export const MakeWidgetContext = React.createContext<{
 export const MakeWidget = (props: MakeWidgetProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(() => {
-    if (state.materialsLoading || state.materialsLoaded) {
-      return;
-    }
+  const { data: materialsData, isValidating: materialsIsValidating } =
+    useSWR<MaterialsResponse>("/api/materials", fetcher);
+  const {
+    data: designsData,
+    isValidating: designsIsValidating,
+    mutate,
+  } = useSWR<DesignsResponse>("/api/user/designs", fetcher);
 
-    dispatch({ type: ActionType.SetMaterialsLoading, payload: true });
-
-    fetch("/api/materials")
-      .then((res) => res.json())
-      .then((materials) => {
-        dispatch({
-          type: ActionType.SetMaterials,
-          payload: materials,
-        });
-      });
-  }, [state.materialsLoading, state.materialsLoaded]);
+  console.log(designsIsValidating);
 
   useEffect(() => {
-    if (state.designsLoading || state.designsLoaded) {
-      return;
-    }
-
-    dispatch({ type: ActionType.SetDesignsLoading, payload: true });
-
-    fetch("/api/user/designs")
-      .then((res) => res.json())
-      .then((designs) => {
-        dispatch({
-          type: ActionType.SetDesigns,
-          payload: designs,
-        });
+    if (materialsData) {
+      dispatch({
+        type: ActionType.SetMaterials,
+        payload: materialsData,
       });
-  }, [state.designsLoading, state.designsLoaded]);
+    }
+  }, [materialsData]);
+
+  useEffect(() => {
+    dispatch({
+      type: ActionType.SetMaterialsLoading,
+      payload: materialsIsValidating,
+    });
+  }, [materialsIsValidating]);
+
+  useEffect(() => {
+    console.log(designsData);
+    if (designsData) {
+      dispatch({
+        type: ActionType.SetDesigns,
+        payload: designsData,
+      });
+    }
+  }, [designsData]);
+
+  useEffect(() => {
+    dispatch({
+      type: ActionType.SetDesignsLoading,
+      payload: designsIsValidating,
+    });
+  }, [designsIsValidating]);
 
   return (
     <MakeWidgetContext.Provider value={{ state, dispatch }}>

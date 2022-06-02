@@ -13,7 +13,7 @@ import { vectorExtensionToFormat, VectorFile, VectorFormat } from '../../../../t
 import { Prisma } from '../../../../utils/prisma';
 
 export interface DesignsResponse {
-  designs: Array<{ id: string }>;
+  designs: Array<{ id: string; previewSvgFileId: string }>;
 }
 
 export interface DesignResponse {
@@ -38,6 +38,7 @@ export default async function handler(
 
       res.status(200).json({
         designs: designs.map((d) => ({
+          previewSvgFileId: d.svgPreviewFileId,
           id: d.id,
         })),
       });

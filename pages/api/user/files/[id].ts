@@ -1,9 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import mime from 'mime-types';
 import { pipeline } from 'stream/promises';
 
 import { storageProvider } from '../../../../backend-providers/storage';
 import { Prisma } from '../../../../utils/prisma';
 
+import type { NextApiRequest, NextApiResponse } from "next";
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -26,9 +27,15 @@ export default async function handler(
     fileLocation: file?.location,
   });
 
-  res.setHeader(
+  console.log(downloader);
+
+  /*res.setHeader(
     "Content-Disposition",
-    `attachment; filename="${file.filename}"`
+    `inline; filename="${file.filename}"`
+  );*/
+  res.setHeader(
+    "Content-Type",
+    mime.lookup(file.filename.split(".").pop()!) || ""
   );
   await pipeline(downloader, res);
 

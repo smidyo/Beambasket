@@ -22,11 +22,12 @@ export interface State {
 export enum ActionType {
   SetStage,
 
-  SetDesignsLoading,
-  SetDesigns,
-
   SetMaterialsLoading,
   SetMaterials,
+
+  SetDesignsLoading,
+  SetDesigns,
+  SetDesignUploading,
 
   SetCategoryId,
   SetVariantId,
@@ -52,16 +53,6 @@ interface ActionSetMaterials extends BaseAction {
   payload: MaterialsResponse;
 }
 
-interface ActionSetDesignsLoading extends BaseAction {
-  type: ActionType.SetDesignsLoading;
-  payload: boolean;
-}
-
-interface ActionSetDesigns extends BaseAction {
-  type: ActionType.SetDesigns;
-  payload: DesignsResponse;
-}
-
 interface ActionSetCategoryId extends BaseAction {
   type: ActionType.SetCategoryId;
   payload: string | null;
@@ -76,16 +67,31 @@ interface ActionSetMaterialId extends BaseAction {
   type: ActionType.SetMaterialId;
   payload: string | null;
 }
+interface ActionSetDesignsLoading extends BaseAction {
+  type: ActionType.SetDesignsLoading;
+  payload: boolean;
+}
+
+interface ActionSetDesigns extends BaseAction {
+  type: ActionType.SetDesigns;
+  payload: DesignsResponse;
+}
+
+interface ActionSetDesignUploading extends BaseAction {
+  type: ActionType.SetDesignUploading;
+  payload: boolean;
+}
 
 export type Action =
   | ActionSetStage
-  | ActionSetDesignsLoading
-  | ActionSetDesigns
   | ActionSetMaterialsLoading
   | ActionSetMaterials
   | ActionSetCategoryId
   | ActionSetVariantId
-  | ActionSetMaterialId;
+  | ActionSetMaterialId
+  | ActionSetDesignsLoading
+  | ActionSetDesigns
+  | ActionSetDesignUploading
 
 export enum Stage {
   Material,
@@ -119,6 +125,10 @@ export const reducer = (state: State, action: Action) => {
     }
     case ActionType.SetDesignsLoading: {
       newState.designsLoading = true;
+      return newState;
+    }
+    case ActionType.SetDesignUploading: {
+      newState.designUploading = true;
       return newState;
     }
     case ActionType.SetCategoryId: {
@@ -172,6 +182,7 @@ export const initialState: State = {
   designsLoaded: false,
   designsLoading: false,
   designs: null,
+  designUploading: false,
 
   categoryId: null,
   variantId: null,
