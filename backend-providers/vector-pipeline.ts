@@ -1,4 +1,4 @@
-import { VectorFile, VectorFormat } from '../types/vector';
+import { VectorFile, VectorFileStream, VectorFormat } from '../types/vector';
 import { vectorExpressVectorPipeline } from './vector-express/vector-express-vector-pipeline';
 
 const vectorPipelineProviders: Record<
@@ -45,7 +45,7 @@ export interface VectorPipelineProvider<
    * and returns it as an SVG representation.
    */
   generateSvgPreview: (args: {
-    vectorFile: VectorFile<CF>;
+    vectorFile: VectorFileStream<CF>;
   }) => Promise<{ vectorFile: VectorFile<VectorFormat.Svg> }>;
 
   /**
@@ -58,7 +58,7 @@ export interface VectorPipelineProvider<
    * and returns the estimated linear movement time in seconds.
    */
   estimateLinearMovement?: (args: {
-    vectorFile: VectorFile<EF>;
+    vectorFile: VectorFileStream<EF>;
     speedMmPerS: number;
     estimationSelectionData: EstimationSelectionData[ES];
   }) => Promise<{ seconds: number }>;
@@ -68,7 +68,7 @@ export interface VectorPipelineProvider<
    * and returns the estimated laser raster time in seconds.
    */
   estimateRasterMovement?: (args: {
-    vectorFile: VectorFile<EF>;
+    vectorFile: VectorFileStream<EF>;
     speedMmPerS: number;
     linesPerMm: number;
     estimationSelectionData: EstimationSelectionData[ES];

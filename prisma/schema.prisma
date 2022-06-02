@@ -112,8 +112,8 @@ model Design {
   name             String
   originalFile     File    @relation(name: "DesignOriginalFile", fields: [originalFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   originalFileId   String  @unique
-  svgPreviewFile   File?   @relation(name: "DesignSvgPreviewFile", fields: [svgPreviewFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  svgPreviewFileId String? @unique
+  svgPreviewFile   File   @relation(name: "DesignSvgPreviewFile", fields: [svgPreviewFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  svgPreviewFileId String @unique
   estimationFile   File?   @relation(name: "DesignEstimationFile", fields: [estimationFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   estimationFileId String? @unique
 

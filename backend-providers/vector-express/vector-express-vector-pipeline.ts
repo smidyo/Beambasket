@@ -29,7 +29,7 @@ export const vectorExpressVectorPipeline: VectorPipelineProvider<
 
   generateSvgPreview: async ({ vectorFile }) => {
     const paths = await fetch(
-      "https://vector.express/api/v2/public/convert/pdf/auto/svg"
+      `https://vector.express/api/v2/public/convert/${vectorFile.format}/auto/svg`
     ).then((res) => res.json());
 
     const filename = `${vectorFile.filename}.svg`;
@@ -42,12 +42,12 @@ export const vectorExpressVectorPipeline: VectorPipelineProvider<
           path: paths.alternatives[0].path,
           port: 443,
           method: "POST",
-          headers: { "Content-Type": "application/pdf" },
+          //headers: { "Content-Type": "application/pdf" },
         },
         (s) => {
-          s.on("data", (data) => json += data);
+          s.on("data", (data) => (json += data));
           s.on("close", () => {
-            console.log(json)
+            console.log(json);
             res(JSON.parse(json).resultUrl);
           });
         }
@@ -60,8 +60,6 @@ export const vectorExpressVectorPipeline: VectorPipelineProvider<
     const stream = storageProvider.createUploadStream({
       filename,
     });
-
-    console.log(downloadUrl)
 
     await new Promise<void>((res, rej) => {
       get(downloadUrl, (s) => {
@@ -76,7 +74,7 @@ export const vectorExpressVectorPipeline: VectorPipelineProvider<
     return {
       vectorFile: {
         filename,
-        stream: null as any,
+        location: stream.fileLocation,
         format: VectorFormat.Svg,
       },
     };

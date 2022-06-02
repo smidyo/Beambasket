@@ -8,6 +8,10 @@ interface Props {}
 export const MakeWidgetSidebarDesign = (props: Props) => {
   const { dispatch, state } = useContext(MakeWidgetContext);
 
+  const handleFile = (file: File) => {
+    
+  }
+
   return (
     <div className="flex flex-col">
       <div>Your designs</div>
@@ -15,6 +19,8 @@ export const MakeWidgetSidebarDesign = (props: Props) => {
       {state.designs?.designs.map((design) => (
         <div key={design.id}>{design.id}</div>
       ))}
+
+      <input type="file" onChange={e => e.target.files && handleFile(e.target.files[0])}/>
 
       <button
         onClick={() =>

@@ -12,6 +12,8 @@ export interface State {
   designsLoading: boolean;
   designs: DesignsResponse | null;
 
+  designUploading: boolean;
+
   categoryId: string | null;
   variantId: string | null;
   materialId: string | null;
