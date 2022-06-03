@@ -1,42 +1,27 @@
+import {
+    EstimationSelectionData, EstimationSelectionMethod, SharedVectorPipeline
+} from '../providers-shared/vector-pipeline';
 import { VectorFile, VectorFileStream, VectorFormat } from '../types/vector';
-import { vectorExpressVectorPipeline } from './vector-express/vector-express-vector-pipeline';
+import {
+    backendVectorPipelineVectorExpress
+} from './vector-express/vector-express-vector-pipeline';
 
-const vectorPipelineProviders: Record<
+const backendsVectorPipeline: Record<
   string,
-  VectorPipelineProvider<VectorFormat, VectorFormat, EstimationSelectionMethod>
+  BackendVectorPipeline<SharedVectorPipeline, VectorFormat, EstimationSelectionMethod>
 > = {
-  VECTOR_EXPRESS: vectorExpressVectorPipeline as any,
+  VECTOR_EXPRESS: backendVectorPipelineVectorExpress as any,
 };
 
-export const vectorPipelineProvider = process.env.VECTOR_PIPELINE_PROVIDER
-  ? vectorPipelineProviders[process.env.VECTOR_PIPELINE_PROVIDER]
-  : vectorExpressVectorPipeline;
+export const backendVectorPipeline = process.env.VECTOR_PIPELINE_PROVIDER
+  ? backendsVectorPipeline[process.env.VECTOR_PIPELINE_PROVIDER]
+  : backendVectorPipelineVectorExpress;
 
-export enum EstimationSelectionMethod {
-  NoSelection,
-  ByStrokeFill,
-}
-
-interface EstimationSelectionData {
-  [EstimationSelectionMethod.NoSelection]: {};
-  [EstimationSelectionMethod.ByStrokeFill]: EstimationSelectionDataByStrokeFill;
-}
-
-interface EstimationSelectionDataByStrokeFill {
-  strokeColors: Color[];
-  fillColors: Color[];
-}
-
-type Color = [r: number, g: number, b: number];
-
-export interface VectorPipelineProvider<
-  CF extends VectorFormat,
+export interface BackendVectorPipeline<
+  S extends SharedVectorPipeline,
   EF extends VectorFormat,
   ES extends EstimationSelectionMethod
 > {
-  /** Which formats the client can upload to be processed */
-  supportedClientFormats: CF[];
-
   /** Which format to be used for estimating laser time */
   estimationFormat: EF;
 
@@ -45,7 +30,7 @@ export interface VectorPipelineProvider<
    * and returns it as an SVG representation.
    */
   generateSvgPreview: (args: {
-    vectorFile: VectorFileStream<CF>;
+    vectorFile: VectorFileStream<S["supportedClientFormats"]>;
   }) => Promise<{ vectorFile: VectorFile<VectorFormat.Svg> }>;
 
   /**

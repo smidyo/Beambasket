@@ -1,30 +1,19 @@
-import { ReadStream } from 'fs';
 import { get, request } from 'https';
 import { pipeline } from 'stream/promises';
 
-import { VectorFile, VectorFormat } from '../../types/vector';
+import {
+    sharedVectorPipelineVectorExpress
+} from '../../providers-shared/vector-express/vector-express-vector-pipeline';
+import { EstimationSelectionMethod } from '../../providers-shared/vector-pipeline';
+import { VectorFormat } from '../../types/vector';
 import { storageProvider } from '../storage';
-import { EstimationSelectionMethod, VectorPipelineProvider } from '../vector-pipeline';
+import { BackendVectorPipeline } from '../vector-pipeline';
 
-export const vectorExpressVectorPipeline: VectorPipelineProvider<
-  | VectorFormat.Ai
-  | VectorFormat.Dwg
-  | VectorFormat.Dxf
-  | VectorFormat.Eps
-  | VectorFormat.Pdf
-  | VectorFormat.Svg,
+export const backendVectorPipelineVectorExpress: BackendVectorPipeline<
+  typeof sharedVectorPipelineVectorExpress,
   VectorFormat.Svg,
   EstimationSelectionMethod.ByStrokeFill
 > = {
-  supportedClientFormats: [
-    VectorFormat.Ai,
-    VectorFormat.Dwg,
-    VectorFormat.Dxf,
-    VectorFormat.Eps,
-    VectorFormat.Pdf,
-    VectorFormat.Svg,
-  ],
-
   estimationFormat: VectorFormat.Svg,
 
   generateSvgPreview: async ({ vectorFile }) => {
@@ -53,7 +42,6 @@ export const vectorExpressVectorPipeline: VectorPipelineProvider<
         }
       );
 
-      // console.log(vectorFile.stream);
       pipeline(vectorFile.stream, req);
     });
 

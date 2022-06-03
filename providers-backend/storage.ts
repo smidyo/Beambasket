@@ -1,20 +1,19 @@
-import busboy from 'busboy';
 import { ReadStream, WriteStream } from 'fs';
 import { Readable } from 'stream';
 
-import { developmentStorageProvider } from './development/development-storage';
-import { s3StorageProvider } from './s3/s3-storage';
+import { backendStorageDevelopment } from './development/development-storage';
+import { backendStorageS3 } from './s3/s3-storage';
 
-const storageProviders: Record<string, StorageProvider> = {
-  S3: s3StorageProvider,
-  DEV: developmentStorageProvider,
+const backendsStorage: Record<string, BackendStorage> = {
+  S3: backendStorageS3,
+  DEV: backendStorageDevelopment,
 };
 
 export const storageProvider = process.env.STORAGE_PROVIDER
-  ? storageProviders[process.env.STORAGE_PROVIDER]
-  : developmentStorageProvider;
+  ? backendsStorage[process.env.STORAGE_PROVIDER]
+  : backendStorageDevelopment;
 
-export interface StorageProvider {
+export interface BackendStorage {
   createUploadStream: (args: { filename: string }) => {
     fileLocation: string;
     stream: WriteStream;

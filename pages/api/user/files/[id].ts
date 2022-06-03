@@ -1,7 +1,7 @@
 import mime from 'mime-types';
 import { pipeline } from 'stream/promises';
 
-import { storageProvider } from '../../../../backend-providers/storage';
+import { storageProvider } from '../../../../providers-backend/storage';
 import { Prisma } from '../../../../utils/prisma';
 
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -27,8 +27,6 @@ export default async function handler(
     fileLocation: file?.location,
   });
 
-  console.log(downloader);
-
   /*res.setHeader(
     "Content-Disposition",
     `inline; filename="${file.filename}"`
@@ -36,6 +34,10 @@ export default async function handler(
   res.setHeader(
     "Content-Type",
     mime.lookup(file.filename.split(".").pop()!) || ""
+  );
+  res.setHeader(
+    "Cache-Control",
+    "private, max-age=31536000"
   );
   await pipeline(downloader, res);
 

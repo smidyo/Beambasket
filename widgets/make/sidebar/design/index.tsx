@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { mutate } from 'swr';
 
 import { MakeWidgetContext } from '../..';
@@ -26,6 +26,11 @@ export const MakeWidgetSidebarDesign = (props: Props) => {
     }).then((res) => res.json() as Promise<DesignResponse>);
 
     dispatch({
+      type: ActionType.SetDesignId,
+      payload: res.id,
+    });
+
+    dispatch({
       type: ActionType.SetDesignUploading,
       payload: false,
     });
@@ -33,25 +38,26 @@ export const MakeWidgetSidebarDesign = (props: Props) => {
     mutate("/api/user/designs");
   };
 
-  // move this into content area instead. Leave only upload on the sidebar.
-
-  console.log(state.designs);
+  const activeDesign = useMemo(() => {
+    return state.designs?.find((design) => design.id === state.designId);
+  }, [state.designId, state.designs]);
 
   return (
     <div className="flex flex-col">
-      <div>Your designs</div>
 
-      {state.designs?.designs.map((design) => (
-        <div key={design.id}>
-          {design.id}
+      {activeDesign && (
+        <>
+          {activeDesign.name}
           <img
-            src={`/api/user/files/${design.previewSvgFileId}`}
+            src={`/api/user/files/${activeDesign.previewSvgFileId}`}
             alt="preview"
             width="150"
             height="150"
           />
-        </div>
-      ))}
+        </>
+      )}
+
+      {state.designUploading && <div>Uploading...</div>}
 
       <input
         type="file"

@@ -2,7 +2,7 @@
 Version 1.0
 
 This license is derived from the Sharetribe Community Public Licence, authored by Sharetribe Oy.
-Original source: https://www.sharetribe.com/sharetribe-community-public-license
+Original source: https://www.sharetribe.com/sharetribe-community-public-licence/
 
 Summary: You may freely use and distribute this code for its intended use within your business. However, you may not sublicense this code (e.g. host it for other companies as SaaS).
 

@@ -10,13 +10,15 @@ export interface State {
 
   designsLoaded: boolean;
   designsLoading: boolean;
-  designs: DesignsResponse | null;
+  designs: DesignsResponse['designs'] | null;
 
   designUploading: boolean;
 
   categoryId: string | null;
   variantId: string | null;
   materialId: string | null;
+
+  designId: string | null;
 }
 
 export enum ActionType {
@@ -32,6 +34,8 @@ export enum ActionType {
   SetCategoryId,
   SetVariantId,
   SetMaterialId,
+
+  SetDesignId,
 }
 
 interface BaseAction {
@@ -46,6 +50,7 @@ interface ActionSetStage extends BaseAction {
 
 interface ActionSetMaterialsLoading extends BaseAction {
   type: ActionType.SetMaterialsLoading;
+  payload: boolean;
 }
 
 interface ActionSetMaterials extends BaseAction {
@@ -82,6 +87,11 @@ interface ActionSetDesignUploading extends BaseAction {
   payload: boolean;
 }
 
+interface ActionSetDesignId extends BaseAction {
+  type: ActionType.SetDesignId;
+  payload: string;
+}
+
 export type Action =
   | ActionSetStage
   | ActionSetMaterialsLoading
@@ -92,6 +102,7 @@ export type Action =
   | ActionSetDesignsLoading
   | ActionSetDesigns
   | ActionSetDesignUploading
+  | ActionSetDesignId;
 
 export enum Stage {
   Material,
@@ -99,77 +110,83 @@ export enum Stage {
   Manufacture,
 }
 
-export const reducer = (state: State, action: Action) => {
+export const reducer = (state: State, { type, payload }: Action) => {
   const newState = { ...state };
 
-  switch (action.type) {
+  switch (type) {
     case ActionType.SetStage: {
-      newState.stage = action.payload;
-      return newState;
+      newState.stage = payload;
+      break;
     }
     case ActionType.SetMaterials: {
-      newState.materials = action.payload;
+      newState.materials = payload;
       newState.materialsLoaded = true;
       newState.materialsLoading = false;
-      return newState;
+      break;
     }
     case ActionType.SetMaterialsLoading: {
       newState.materialsLoading = true;
-      return newState;
+      break;
     }
     case ActionType.SetDesigns: {
-      newState.designs = action.payload;
+      newState.designs = [...payload.designs].reverse();
       newState.designsLoaded = true;
       newState.designsLoading = false;
-      return newState;
+      break;
     }
     case ActionType.SetDesignsLoading: {
-      newState.designsLoading = true;
-      return newState;
+      newState.designsLoading = payload;
+      break;
     }
     case ActionType.SetDesignUploading: {
-      newState.designUploading = true;
-      return newState;
+      newState.designUploading = payload;
+      break;
     }
     case ActionType.SetCategoryId: {
-      newState.categoryId = action.payload;
+      newState.categoryId = payload;
       newState.variantId = null;
       newState.materialId = null;
-      return newState;
+      break;
     }
     case ActionType.SetVariantId: {
       newState.materialId = null;
-      newState.variantId = action.payload;
+      newState.variantId = payload;
 
-      if (action.payload) {
+      if (payload) {
         newState.categoryId =
           state.materials?.materialCategories.find((c) =>
-            c.materialVariants.some((mv) => mv.id === action.payload)
+            c.materialVariants.some((mv) => mv.id === payload)
           )?.id ?? null;
       }
-      return newState;
+      break;
     }
     case ActionType.SetMaterialId: {
-      newState.materialId = action.payload;
+      newState.materialId = payload;
 
-      if (action.payload) {
+      if (payload) {
         const category = state.materials?.materialCategories.find((c) =>
           c.materialVariants.some((mv) =>
-            mv.materials.some((m) => m.id === action.payload)
+            mv.materials.some((m) => m.id === payload)
           )
         );
         newState.categoryId = category?.id ?? null;
         newState.variantId =
           category?.materialVariants.find((mv) =>
-            mv.materials.some((m) => m.id === action.payload)
+            mv.materials.some((m) => m.id === payload)
           )?.id ?? null;
       }
-      return newState;
+      break;
+    }
+    case ActionType.SetDesignId: {
+      newState.designId = payload;
+      break;
     }
     default: {
-      return newState;
+      break;
     }
   }
+
+  return newState;
 };
 
 export const initialState: State = {
@@ -187,4 +204,6 @@ export const initialState: State = {
   categoryId: null,
   variantId: null,
   materialId: null,
+
+  designId: null,
 };

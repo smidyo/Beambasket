@@ -4,6 +4,8 @@ import useSWR from 'swr';
 import { MaterialsResponse } from '../../pages/api/materials';
 import { DesignsResponse } from '../../pages/api/user/designs';
 import { fetcher } from '../../utils/fetcher';
+import { MakeWidgetContentDesign } from './content/design';
+import { MakeWidgetContentManufacture } from './content/manufacture';
 import { MakeWidgetContentMaterial } from './content/material';
 import { MakeWidgetSidebarDesign } from './sidebar/design';
 import { MakeWidgetSidebarMaterial } from './sidebar/material';
@@ -66,16 +68,22 @@ export const MakeWidget = (props: MakeWidgetProps) => {
 
   return (
     <MakeWidgetContext.Provider value={{ state, dispatch }}>
-      <div className="flex">
-        <div className="w-96">
+      <div className="flex absolute w-full h-full">
+        <div className="w-96 border-r-2">
           {state.stage === Stage.Material ? (
             <MakeWidgetSidebarMaterial />
           ) : (
             <MakeWidgetSidebarDesign />
           )}
         </div>
-        <div className="flex-grow">
-          <MakeWidgetContentMaterial />
+        <div className="flex-grow overflow-y-scroll">
+          {state.stage === Stage.Material ? (
+            <MakeWidgetContentMaterial />
+          ) : state.stage === Stage.Design ? (
+            <MakeWidgetContentDesign />
+          ) : (
+            <MakeWidgetContentManufacture />
+          )}
         </div>
       </div>
     </MakeWidgetContext.Provider>

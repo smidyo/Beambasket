@@ -2,10 +2,11 @@ import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { PrismaClient } from '@prisma/client';
+
+import { Prisma } from '../../../utils/prisma';
 
 export default NextAuth({
-  adapter: PrismaAdapter(new PrismaClient()),
+  adapter: PrismaAdapter(Prisma),
   providers: [
     EmailProvider({
       server: {
@@ -17,7 +18,7 @@ export default NextAuth({
         },
       },
       from: process.env.EMAIL_FROM,
-    })
+    }),
   ],
   theme: {
     colorScheme: "light",

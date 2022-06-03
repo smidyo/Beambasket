@@ -1,19 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import busboy from 'busboy';
-import { ReadStream } from 'fs';
 import { pipeline } from 'stream/promises';
-import { string } from 'yup';
 
-import { storageProvider, uploadFile } from '../../../../backend-providers/storage';
-import {
-    vectorExpressVectorPipeline
-} from '../../../../backend-providers/vector-express/vector-express-vector-pipeline';
-import { vectorPipelineProvider } from '../../../../backend-providers/vector-pipeline';
-import { vectorExtensionToFormat, VectorFile, VectorFormat } from '../../../../types/vector';
+import { storageProvider, uploadFile } from '../../../../providers-backend/storage';
+import { providerBackendVectorPipeline } from '../../../../providers-backend/vector-pipeline';
+import { vectorExtensionToFormat } from '../../../../types/vector';
 import { Prisma } from '../../../../utils/prisma';
 
 export interface DesignsResponse {
-  designs: Array<{ id: string; previewSvgFileId: string }>;
+  designs: DesignResponse[];
 }
 
 export interface DesignResponse {
@@ -23,9 +18,7 @@ export interface DesignResponse {
 }
 
 export const config = {
-  api: {
-    bodyParser: false,
-  },
+  api: { bodyParser: false },
 };
 
 export default async function handler(
@@ -39,6 +32,7 @@ export default async function handler(
       res.status(200).json({
         designs: designs.map((d) => ({
           previewSvgFileId: d.svgPreviewFileId,
+          name: d.name,
           id: d.id,
         })),
       });
@@ -63,7 +57,7 @@ export default async function handler(
           const extension = filename.split(".").pop() ?? "svg";
 
           const { vectorFile } =
-            await vectorPipelineProvider.generateSvgPreview({
+            await providerBackendVectorPipeline.generateSvgPreview({
               vectorFile: {
                 filename,
                 location,
