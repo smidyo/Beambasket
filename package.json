@@ -2,7 +2,7 @@
   "name": "beambasket",
   "version": "0.0.1",
   "private": true,
-  "license": "Sharetribe Community Public Licence Version 1.0",
+  "license": "Smidyo Sharetribe Community Public Licence Version 1.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
