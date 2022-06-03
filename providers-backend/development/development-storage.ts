@@ -2,9 +2,9 @@ import { createReadStream, createWriteStream } from 'fs';
 import { customAlphabet } from 'nanoid';
 import { join } from 'path';
 
-import { BackendStorage } from '../storage';
+import { BackendStorageProvider } from '../storage';
 
-export const backendStorageDevelopment: BackendStorage = {
+export const BackendProviderStorageDevelopment: BackendStorageProvider = {
   createUploadStream({ filename }) {
     const extension = filename.split(".").pop();
 

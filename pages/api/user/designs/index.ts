@@ -3,7 +3,7 @@ import busboy from 'busboy';
 import { pipeline } from 'stream/promises';
 
 import { storageProvider, uploadFile } from '../../../../providers-backend/storage';
-import { providerBackendVectorPipeline } from '../../../../providers-backend/vector-pipeline';
+import { providerBackendVectorPipeline } from '../../../../providers-backend/vector';
 import { vectorExtensionToFormat } from '../../../../types/vector';
 import { Prisma } from '../../../../utils/prisma';
 

@@ -1,6 +1,6 @@
 import { BackendStorage } from '../storage';
 
-export const backendStorageS3: BackendStorage = {
+export const BackendProviderStorageS3: BackendStorageProvider = {
   async uploadFile({ data, fileName }) {
     return { filePath: "" };
   },

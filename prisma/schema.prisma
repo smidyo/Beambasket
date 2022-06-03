@@ -109,13 +109,13 @@ model BasketPart {
 model Design {
   id String @id @default(cuid())
 
-  name             String
-  originalFile     File    @relation(name: "DesignOriginalFile", fields: [originalFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  originalFileId   String  @unique
-  svgPreviewFile   File   @relation(name: "DesignSvgPreviewFile", fields: [svgPreviewFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  svgPreviewFileId String @unique
-  estimationFile   File?   @relation(name: "DesignEstimationFile", fields: [estimationFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  estimationFileId String? @unique
+  name               String
+  originalFile       File    @relation(name: "DesignOriginalFile", fields: [originalFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  originalFileId     String  @unique
+  previewFile        File    @relation(name: "DesignPreviewFile", fields: [previewFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  previewFileId      String  @unique
+  intermediateFile   File?   @relation(name: "DesignIntermediateFile", fields: [intermediateFileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  intermediateFileId String? @unique
 
   selectionData Json?
 
@@ -130,9 +130,9 @@ model File {
   filename String
   location String
 
-  designOriginal   Design? @relation(name: "DesignOriginalFile")
-  designSvgPreview Design? @relation(name: "DesignSvgPreviewFile")
-  designEstimation Design? @relation(name: "DesignEstimationFile")
+  designOriginal     Design? @relation(name: "DesignOriginalFile")
+  designPreview      Design? @relation(name: "DesignPreviewFile")
+  designIntermediate Design? @relation(name: "DesignIntermediateFile")
 }
 
 model MaterialVariant {
@@ -148,12 +148,6 @@ model MaterialVariant {
 
   materials Material[]
   sizes     MaterialSize[]
-
-  scoreable          Boolean
-  scoringSpeedMmPerS Float
-
-  engraveable          Boolean
-  engravingSpeedMmPerS Float
 }
 
 enum MaterialUsageMethod {
@@ -181,12 +175,8 @@ model Material {
   materialVariant MaterialVariant @relation(fields: [materialId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   materialId      String
 
-  thicknessMm Float
-
-  cuttable           Boolean
-  cuttingSpeedMmPerS Float
-
-  pricePerM2 Float
+  vectorParams  Json
+  pricingParams Json
 
   basketParts BasketPart[]
 }

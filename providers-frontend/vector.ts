@@ -1,8 +1,6 @@
 import React from 'react';
 
-import {
-    frontendVectorPipelineVectorExpress
-} from './vector-express/vector-express-vector-pipeline';
+import { frontendVectorPipelineVectorExpress } from './vector-express/vector-express-vector';
 
 const frontendProvidersVectorPipeline: Record<string, FrontendVectorPipeline> =
   {

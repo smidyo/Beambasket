@@ -17,4 +17,16 @@ export const sharedVectorPipelineVectorExpress: SharedVectorPipeline<
     VectorFormat.Pdf,
     VectorFormat.Svg,
   ],
+
+  materialParams: {
+    ...(process.env.VECTOR_EXPRESS_ENABLE_CUTTING
+      ? { cuttingSpeedMmPerS: "number" }
+      : {}),
+    ...(process.env.VECTOR_EXPRESS_ENABLE_ENGRAVING
+      ? { engravingSpeedMmPerS: "number" }
+      : {}),
+    ...(process.env.VECTOR_EXPRESS_ENABLE_SCORING
+      ? { scoringSpeedMmPerS: "number" }
+      : {}),
+  },
 };

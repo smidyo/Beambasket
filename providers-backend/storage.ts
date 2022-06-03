@@ -1,19 +1,19 @@
 import { ReadStream, WriteStream } from 'fs';
 import { Readable } from 'stream';
 
-import { backendStorageDevelopment } from './development/development-storage';
-import { backendStorageS3 } from './s3/s3-storage';
+import { backendProviderStorageDevelopment } from './development/development-storage';
+import { backendProviderStorageS3 } from './s3/s3-storage';
 
-const backendsStorage: Record<string, BackendStorage> = {
-  S3: backendStorageS3,
-  DEV: backendStorageDevelopment,
+const backendProvidersStorage: Record<string, BackendStorage> = {
+  S3: backendProviderStorageS3,
+  DEV: backendProviderStorageDevelopment,
 };
 
-export const storageProvider = process.env.STORAGE_PROVIDER
-  ? backendsStorage[process.env.STORAGE_PROVIDER]
-  : backendStorageDevelopment;
+export const backendProviderStorage = process.env.STORAGE_PROVIDER
+  ? backendProvidersStorage[process.env.STORAGE_PROVIDER]
+  : backendProviderStorageDevelopment;
 
-export interface BackendStorage {
+export interface BackendStorageProvider {
   createUploadStream: (args: { filename: string }) => {
     fileLocation: string;
     stream: WriteStream;
@@ -30,7 +30,7 @@ export const uploadFile = ({
   filename: string;
 }) =>
   new Promise<string>((res, rej) => {
-    const uploader = storageProvider.createUploadStream({
+    const uploader = backendProvidersStorage.createUploadStream({
       filename,
     });
 

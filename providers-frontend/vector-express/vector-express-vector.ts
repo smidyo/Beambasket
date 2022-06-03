@@ -1,4 +1,4 @@
-import { FrontendVectorPipeline } from '../vector-pipeline';
+import { FrontendVectorPipeline } from '../vector';
 
 export const frontendVectorPipelineVectorExpress: FrontendVectorPipeline = {
 };

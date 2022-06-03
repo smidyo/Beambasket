@@ -4,15 +4,13 @@ import { pipeline } from 'stream/promises';
 import {
     sharedVectorPipelineVectorExpress
 } from '../../providers-shared/vector-express/vector-express-vector-pipeline';
-import { EstimationSelectionMethod } from '../../providers-shared/vector-pipeline';
 import { VectorFormat } from '../../types/vector';
 import { storageProvider } from '../storage';
-import { BackendVectorPipeline } from '../vector-pipeline';
+import { BackendVectorPipeline } from '../vector';
 
-export const backendVectorPipelineVectorExpress: BackendVectorPipeline<
+export const backendVectorProviderVectorExpress: BackendVectorProvider<
   typeof sharedVectorPipelineVectorExpress,
   VectorFormat.Svg,
-  EstimationSelectionMethod.ByStrokeFill
 > = {
   estimationFormat: VectorFormat.Svg,
 

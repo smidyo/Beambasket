@@ -1,14 +1,19 @@
+import { object } from 'yup';
+
 import {
     EstimationSelectionData, EstimationSelectionMethod, SharedVectorPipeline
 } from '../providers-shared/vector-pipeline';
+import { File } from '../types/file';
 import { VectorFile, VectorFileStream, VectorFormat } from '../types/vector';
-import {
-    backendVectorPipelineVectorExpress
-} from './vector-express/vector-express-vector-pipeline';
+import { backendVectorPipelineVectorExpress } from './vector-express/vector-express-vector';
 
 const backendsVectorPipeline: Record<
   string,
-  BackendVectorPipeline<SharedVectorPipeline, VectorFormat, EstimationSelectionMethod>
+  BackendVectorPipeline<
+    SharedVectorPipeline,
+    VectorFormat,
+    EstimationSelectionMethod
+  >
 > = {
   VECTOR_EXPRESS: backendVectorPipelineVectorExpress as any,
 };
@@ -19,33 +24,40 @@ export const backendVectorPipeline = process.env.VECTOR_PIPELINE_PROVIDER
 
 export interface BackendVectorPipeline<
   S extends SharedVectorPipeline,
-  EF extends VectorFormat,
-  ES extends EstimationSelectionMethod
+  IF extends VectorFormat,
+  SD extends object
 > {
   /** Which format to be used for estimating laser time */
-  estimationFormat: EF;
+  estimationFormat: IF;
 
   /**
    * A function which takes in a supported client format,
    * and returns it as an SVG representation.
    */
-  generateSvgPreview: (args: {
+  generatePreview: (args: {
     vectorFile: VectorFileStream<S["supportedClientFormats"]>;
-  }) => Promise<{ vectorFile: VectorFile<VectorFormat.Svg> }>;
+  }) => Promise<File>;
+
+  generateIntermediate: (args: {
+    vectorFile: VectorFileStream<S["supportedClientFormats"]>;
+  }) => Promise<File>;
 
   /**
-   * The method of which to pick out parts of the drawing to estimate
+   * 
    */
-  estimationSelectionMethod: ES;
+  estimateMaterialUsage: (args: {
+    vectorFile: VectorFileStream<IF>;
+    selectionData: SD;
+  }) =>
 
   /**
    * A function which takes in a vector of format estimationFormat,
    * and returns the estimated linear movement time in seconds.
    */
   estimateLinearMovement?: (args: {
-    vectorFile: VectorFileStream<EF>;
+    vectorFile: VectorFileStream<IF>;
     speedMmPerS: number;
-    estimationSelectionData: EstimationSelectionData[ES];
+    selectionData: LD;
   }) => Promise<{ seconds: number }>;
 
   /**
@@ -53,9 +65,9 @@ export interface BackendVectorPipeline<
    * and returns the estimated laser raster time in seconds.
    */
   estimateRasterMovement?: (args: {
-    vectorFile: VectorFileStream<EF>;
+    vectorFile: VectorFileStream<IF>;
     speedMmPerS: number;
     linesPerMm: number;
-    estimationSelectionData: EstimationSelectionData[ES];
+    selectionData: RD;
   }) => Promise<{ seconds: number }>;
 }
