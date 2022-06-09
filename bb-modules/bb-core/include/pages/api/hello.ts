@@ -10,4 +10,4 @@ export default function handler(
   res: NextApiResponse<Data>
 ) {
   res.status(200).json({ name: 'John Doe' })
-}
+} as NextApiHandler

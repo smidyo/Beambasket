@@ -1,0 +1,20 @@
+{
+  "modules": [
+    {
+      "module": "bb-core"
+    },
+    { "module": "passport-auth" },
+    {
+      "module": "vx-laser-organic",
+      "instance": "laser",
+      "buildConfig": { "enableCutting": true, "enableEngraving": true },
+      "backendConfig": {}
+    },
+    {
+      "module": "vx-laser-organic",
+      "instance": "gaskets",
+      "buildConfig": { "enableCutting": true },
+      "backendConfig": {}
+    }
+  ]
+}

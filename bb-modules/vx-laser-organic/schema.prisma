@@ -1,0 +1,13 @@
+model Design {
+    id String @id @default(cuid())
+
+    cuttingColors Json
+
+    //if enableScoring === true
+    scoringColors Json
+    //endif
+
+    //if enableEngraving === true
+    engravingColors Json
+    //endif
+}

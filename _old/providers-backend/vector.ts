@@ -1,28 +1,10 @@
-import { object } from 'yup';
-
-import {
-    EstimationSelectionData, EstimationSelectionMethod, SharedVectorPipeline
-} from '../providers-shared/vector-pipeline';
-import { File } from '../types/file';
-import { VectorFile, VectorFileStream, VectorFormat } from '../types/vector';
-import { backendVectorPipelineVectorExpress } from './vector-express/vector-express-vector';
-
-const backendsVectorPipeline: Record<
-  string,
-  BackendVectorPipeline<
-    SharedVectorPipeline,
-    VectorFormat,
-    EstimationSelectionMethod
-  >
-> = {
-  VECTOR_EXPRESS: backendVectorPipelineVectorExpress as any,
-};
+import { EstimationSelectionMethod, SharedVectorPipeline } from 'm,ä.å';
 
 export const backendVectorPipeline = process.env.VECTOR_PIPELINE_PROVIDER
   ? backendsVectorPipeline[process.env.VECTOR_PIPELINE_PROVIDER]
   : backendVectorPipelineVectorExpress;
 
-export interface BackendVectorPipeline<
+export interface BackendProviderVector<
   S extends SharedVectorPipeline,
   IF extends VectorFormat,
   SD extends object
